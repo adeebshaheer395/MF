@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐎 Mustang Fund</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0a;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  .container { max-width: 820px; margin: 0 auto; }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    padding: 32px 0 28px;
+    border-bottom: 2px solid #E8500A;
+    margin-bottom: 36px;
+  }
+
+  .horse { font-size: 64px; display: block; margin-bottom: 12px; }
+
+  h1 {
+    font-size: 2.6rem;
+    color: #E8500A;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    font-weight: 900;
+  }
+
+  .subtitle { color: #666; margin-top: 8px; font-size: 0.95rem; letter-spacing: 1px; }
+
+  /* COUNTDOWN */
+  .section-label {
+    text-align: center;
+    color: #555;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 18px;
+  }
+
+  .countdown {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .time-block {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 14px;
+    padding: 22px 28px;
+    min-width: 100px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .time-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #E8500A, #FF8C00);
+  }
+
+  .time-block .num {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #E8500A;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .time-block .unit {
+    font-size: 0.68rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 6px;
+  }
+
+  /* PIGGY BANK */
+  .card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    color: #E8500A;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .savings-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 18px;
+  }
+
+  .big-amount {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .big-amount span { color: #E8500A; }
+
+  .of-goal { color: #444; font-size: 0.85rem; margin-top: 4px; }
+
+  .remaining-label {
+    text-align: right;
+    color: #555;
+    font-size: 0.85rem;
+  }
+
+  .remaining-amount {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: right;
+  }
+
+  /* PROGRESS BAR */
+  .track {
+    background: #1a1a1a;
+    border-radius: 50px;
+    height: 28px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .fill {
+    height: 100%;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #c73d00, #E8500A, #ff7b1a);
+    transition: width 0.6s cubic-bezier(.22,.68,0,1.2);
+    position: relative;
+    min-width: 0;
+  }
+
+  .fill::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 10px; right: 10px; bottom: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50px;
+  }
+
+  .pct-label {
+    text-align: center;
+    color: #444;
+    font-size: 0.82rem;
+    margin-bottom: 22px;
+  }
+
+  /* MILESTONES */
+  .milestones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .ms {
+    background: #161616;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .ms.done {
+    border-color: #E8500A;
+    background: #1a0d05;
+  }
+
+  .ms-check { font-size: 1.1rem; margin-bottom: 4px; opacity: 0; transition: opacity 0.3s; }
+  .ms.done .ms-check { opacity: 1; }
+
+  .ms-amt { font-size: 1.05rem; font-weight: 700; color: #E8500A; }
+  .ms-lbl { font-size: 0.7rem; color: #555; margin-top: 3px; }
+  .ms.done .ms-lbl { color: #888; }
+
+  /* INPUT */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .input-lbl { color: #555; font-size: 0.82rem; white-space: nowrap; }
+
+  input[type=number] {
+    flex: 1;
+    background: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 11px 16px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type=number]:focus { border-color: #E8500A; }
+
+  button {
+    background: #E8500A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 22px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  button:hover { background: #ff6520; }
+  button:active { transform: scale(0.97); }
+
+  /* SOURCES */
+  .source-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid #181818;
+  }
+
+  .source-row:last-child {
+    border-bottom: none;
+    padding-top: 14px;
+    margin-top: 4px;
+  }
+
+  .source-name { color: #888; font-size: 0.9rem; }
+  .source-val { color: #fff; font-weight: 600; font-size: 0.9rem; }
+
+  .source-row.total .source-name { color: #E8500A; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .source-row.total .source-val { color: #E8500A; font-size: 1rem; }
+
+  /* PLAN */
+  .plan-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+
+  .plan-item:last-child { margin-bottom: 0; }
+
+  .pi-icon { font-size: 1.3rem; min-width: 28px; margin-top: 1px; }
+
+  .pi-text { color: #777; font-size: 0.9rem; line-height: 1.6; }
+  .pi-text strong { color: #ddd; }
+
+  /* MOTIVATION */
+  .motivation {
+    text-align: center;
+    padding: 28px;
+    background: #0e0e0e;
+    border: 1px solid #1a1a1a;
+    border-radius: 18px;
+    margin-bottom: 20px;
+  }
+
+  .motivation .quote {
+    font-size: 1.2rem;
+    color: #E8500A;
+    font-style: italic;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .motivation .by { color: #444; font-size: 0.8rem; }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: #2a2a2a;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+  }
+
+  /* SOURCE BUTTONS */
+  .src-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .src-btn {
+    background: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 14px 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+  }
+
+  .src-btn:hover { border-color: #E8500A; background: #1a0d05; }
+  .src-btn:active { transform: scale(0.96); }
+  .src-btn { position: relative; }
+  .undo-btn {
+    position: absolute;
+    top: 5px; right: 5px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #555;
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .undo-btn:hover { color: #E8500A; border-color: #E8500A; background: #1a0d05; }
+
+  .src-btn.used { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+  .src-btn.once { border-color: #2a1a0a; }
+  .src-btn.once:hover { border-color: #ff8c00; }
+
+  .src-icon { font-size: 1.4rem; }
+  .src-name { font-size: 0.68rem; color: #777; text-align: center; line-height: 1.3; }
+  .src-amt { font-size: 1rem; font-weight: 800; color: #E8500A; }
+  .src-sub { font-size: 0.65rem; color: #444; }
+  .src-btn.used .src-sub { color: #E8500A; }
+
+  .reimb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 4px;
+  }
+
+  .reimb-row input {
+    width: 90px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+  }
+
+  .reimb-row input:focus { border-color: #E8500A; }
+
+  /* Confetti flash when goal reached */
+  @keyframes goalFlash {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 40px #E8500A88; }
+  }
+
+  .goal-reached { animation: goalFlash 1.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <span class="horse">🐎</span>
+    <h1>Mustang Fund</h1>
+    <p class="subtitle">2015 – 2018 GT &nbsp;·&nbsp; 5.0 Coyote V8 &nbsp;·&nbsp; 6-Speed Manual &nbsp;·&nbsp; Cash Purchase</p>
+  </header>
+
+  <!-- COUNTDOWN -->
+  <p class="section-label">⏳ Countdown to End of April 2027 — Buying Clean</p>
+  <div class="countdown">
+    <div class="time-block"><div class="num" id="days">--</div><div class="unit">Days</div></div>
+    <div class="time-block"><div class="num" id="hours">--</div><div class="unit">Hours</div></div>
+    <div class="time-block"><div class="num" id="minutes">--</div><div class="unit">Mins</div></div>
+    <div class="time-block"><div class="num" id="seconds">--</div><div class="unit">Secs</div></div>
+  </div>
+
+  <!-- PIGGY BANK -->
+  <div class="card" id="savingsCard">
+    <div class="card-title">🐷 Mustang Piggy Bank</div>
+
+    <div class="savings-top">
+      <div>
+        <div class="big-amount" id="displayAmt"><span>$</span>0</div>
+        <div class="of-goal">of $15,000 goal</div>
+      </div>
+      <div>
+        <div class="remaining-label">still needed</div>
+        <div class="remaining-amount" id="remaining">$15,000</div>
+      </div>
+    </div>
+
+    <div class="track">
+      <div class="fill" id="fill" style="width:0%"></div>
+    </div>
+    <p class="pct-label" id="pctLabel">0.0% complete</p>
+
+    <div class="milestones">
+      <div class="ms" id="ms1">
+        <div class="ms-check">✅</div>
+        <div class="ms-amt">$5,000</div>
+        <div class="ms-lbl">Tax Refund In</div>
+      </div>
+      <div class="ms" id="ms2">
+        <div class="ms-check">✅</div>
+        <div class="ms-amt">$10,000</div>
+        <div class="ms-lbl">Halfway There</div>
+      </div>
+      <div class="ms" id="ms3">
+        <div class="ms-check">🔥</div>
+        <div class="ms-amt">$15,000</div>
+        <div class="ms-lbl">LET'S RIDE</div>
+      </div>
+    </div>
+
+    <!-- SOURCE BUTTONS -->
+    <div style="color:#E8500A;font-size:0.78rem;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:14px;">💸 Add Money by Source</div>
+
+    <div class="src-grid">
+      <button class="src-btn" id="btn-pocketMoney" onclick="addSource('pocketMoney')">
+        <span class="undo-btn" onclick="event.stopPropagation();undoSource('pocketMoney')">↩</span>
+        <span class="src-icon">💰</span>
+        <span class="src-name">Pocket Money</span>
+        <span class="src-amt">+$200</span>
+        <span class="src-sub" id="count-pocketMoney">0 / 11 months</span>
+      </button>
+      <button class="src-btn" id="btn-extraHours" onclick="addSource('extraHours')">
+        <span class="undo-btn" onclick="event.stopPropagation();undoSource('extraHours')">↩</span>
+        <span class="src-icon">⏱️</span>
+        <span class="src-name">Extra 2hrs/wk</span>
+        <span class="src-amt">+$112</span>
+        <span class="src-sub" id="count-extraHours">0 / 24 paychecks</span>
+      </button>
+      <button class="src-btn" id="btn-feb2027Raise" onclick="addSource('feb2027Raise')">
+        <span class="undo-btn" onclick="event.stopPropagation();undoSource('feb2027Raise')">↩</span>
+        <span class="src-icon">📈</span>
+        <span class="src-name">Feb 2027 Raise</span>
+        <span class="src-amt">+$110</span>
+        <span class="src-sub" id="count-feb2027Raise">0 / 3 months</span>
+      </button>
+      <button class="src-btn once" id="btn-octBonus" onclick="addSource('octBonus')">
+        <span class="undo-btn" onclick="event.stopPropagation();undoSource('octBonus')">↩</span>
+        <span class="src-icon">🎁</span>
+        <span class="src-name">Oct 2026 Bonus</span>
+        <span class="src-amt">+$2,540</span>
+        <span class="src-sub" id="count-octBonus">not added yet</span>
+      </button>
+      <button class="src-btn once" id="btn-taxRefund" onclick="addSource('taxRefund')">
+        <span class="undo-btn" onclick="event.stopPropagation();undoSource('taxRefund')">↩</span>
+        <span class="src-icon">💥</span>
+        <span class="src-name">Tax Refund</span>
+        <span class="src-amt">+$5,000</span>
+        <span class="src-sub" id="count-taxRefund">not added yet</span>
+      </button>
+      <button class="src-btn once" id="btn-aprBonus" onclick="addSource('aprBonus')">
+        <span class="undo-btn" onclick="event.stopPropagation();undoSource('aprBonus')">↩</span>
+        <span class="src-icon">🎁</span>
+        <span class="src-name">Apr 2027 Bonus</span>
+        <span class="src-amt">+$2,540</span>
+        <span class="src-sub" id="count-aprBonus">not added yet</span>
+      </button>
+    </div>
+
+    <!-- REIMBURSEMENT (variable) -->
+    <div class="reimb-row">
+      <span style="font-size:1.2rem;">⛽</span>
+      <span style="color:#888;font-size:0.85rem;flex:1;">Site Reimbursement</span>
+      <input type="number" id="reimbInput" placeholder="$amount" min="0" step="1">
+      <button onclick="addReimbursement()">+ Add</button>
+      <button onclick="undoReimbursement()" style="background:#1a1a1a;border:1px solid #333;font-size:0.8rem;padding:8px 10px;">↩</button>
+      <span id="count-reimb" style="color:#555;font-size:0.75rem;white-space:nowrap;">$0 total</span>
+    </div>
+
+    <div id="addedMsg" style="text-align:center;color:#E8500A;font-size:0.85rem;margin-top:12px;min-height:18px;"></div>
+
+    <!-- Manual set -->
+    <div style="text-align:center;margin-top:10px;">
+      <span onclick="showSetModal()" style="color:#333;font-size:0.75rem;cursor:pointer;text-decoration:underline;">manually set total balance</span>
+    </div>
+    <div id="setModal" style="display:none;margin-top:12px;background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:14px;">
+      <div style="color:#555;font-size:0.8rem;margin-bottom:8px;">Set exact balance (overrides current):</div>
+      <div class="input-row">
+        <input type="number" id="setInput" placeholder="exact total" min="0" step="1">
+        <button onclick="setExact()" style="background:#555;">Set</button>
+        <button onclick="hideSetModal()" style="background:#1a1a1a;border:1px solid #333;">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="card">
+    <div class="card-title">📥 Where the Money Comes From</div>
+    <div class="source-row">
+      <span class="source-name">Pocket money dedicated to fund (monthly)</span>
+      <span class="source-val">$200/mo</span>
+    </div>
+    <div class="source-row">
+      <span class="source-name">Extra 2hrs/week at 44hrs (22 paychecks × ~$112 net)</span>
+      <span class="source-val">~$2,460</span>
+    </div>
+    <div class="source-row">
+      <span class="source-name">Oct 2026 bonus paycheck (44hrs = 88hrs biweekly)</span>
+      <span class="source-val">~$2,540</span>
+    </div>
+    <div class="source-row">
+      <span class="source-name">Feb 2027 raise extra (3 months × ~$110)</span>
+      <span class="source-val">~$330</span>
+    </div>
+    <div class="source-row">
+      <span class="source-name">Tax refund — arrives mid-April 2027</span>
+      <span class="source-val">~$5,000 💥</span>
+    </div>
+    <div class="source-row">
+      <span class="source-name">Apr 2027 bonus paycheck</span>
+      <span class="source-val">~$2,540</span>
+    </div>
+    <div class="source-row">
+      <span class="source-name">Site reimbursement surplus (buffer)</span>
+      <span class="source-val">variable</span>
+    </div>
+    <div class="source-row total">
+      <span class="source-name">Total by Apr 2027</span>
+      <span class="source-val">~$15,070 ✓</span>
+    </div>
+  </div>
+
+  <!-- PLAN -->
+  <div class="card">
+    <div class="card-title">🗺️ The Plan</div>
+    <div class="plan-item">
+      <span class="pi-icon">💰</span>
+      <div class="pi-text"><strong>$200/month pocket money goes straight in.</strong> Site reimbursement surplus after gas goes in too. Raise income above old $4,800 baseline goes in. TFSA $5,000/month stays completely untouched.</div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">📈</span>
+      <div class="pi-text"><strong>Open a Wahed TFSA (separate from main TFSA).</strong> All contributions go here — halal equity returns ~6–8% p.a., no riba, tax-free growth. No savings account, no interest.</div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">🏦</span>
+      <div class="pi-text"><strong>Withdraw everything before Dec 31, 2026.</strong> TFSA room restores January 1, 2027. Cash sits from Jan–Apr 2027 while the final contributions (raise, tax refund, April bonus paycheck) stack up.</div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">📅</span>
+      <div class="pi-text"><strong>Bonus paychecks: Oct 2026 (~$2,540) + Apr 2027 (~$2,540).</strong> Oct 2026 goes into Wahed TFSA. Apr 2027 lands as cash right at purchase time alongside the tax refund.</div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">💥</span>
+      <div class="pi-text"><strong>Mid-April 2027: tax refund (~$5,000) arrives.</strong> Combined with Apr bonus paycheck and saved cash — fund hits $15k. Buy the car end of April.</div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">🚗</span>
+      <div class="pi-text"><strong>Target: 2015–2018 Mustang GT, 5.0 Coyote V8, 6-speed manual.</strong> $13k–$15k in Alberta. Coyote V8 reliable well past 200,000 km. 120–150k km is middle-aged, not high. Keep the Elantra.</div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">🛡️</span>
+      <div class="pi-text"><strong>Insurance: ~$240/mo extra</strong> via Desjardins multi-vehicle. Covered by pocket money + reimbursement surplus. Zero TFSA impact. <strong>Action: call Desjardins for a quote on a 2016–2018 GT.</strong></div>
+    </div>
+    <div class="plan-item">
+      <span class="pi-icon">🏦</span>
+      <div class="pi-text"><strong>Backup:</strong> If slightly short, Manzil halal finance (Murabaha) covers the gap. Goal is full cash — halal by default, no financing needed.</div>
+    </div>
+  </div>
+
+  <!-- MOTIVATION -->
+  <div class="motivation">
+    <div class="quote">"The TFSA doesn't move. The fund grows. The Mustang is inevitable."</div>
+    <div class="by">— every dollar you throw in gets you closer 🐎</div>
+  </div>
+
+  <footer>Built for Adeeb · Mustang Fund 2025–2027 · TFSA UNTOUCHED</footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script>
+  const GOAL = 15000;
+  const TARGET = new Date('2027-04-30T00:00:00');
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('en-CA');
+  }
+
+  const SOURCES = {
+    pocketMoney:  { amount: 200,  type: 'recurring', label: 'Pocket Money',    unit: 'month',    max: 11 },
+    extraHours:   { amount: 112,  type: 'recurring', label: 'Extra Hours',      unit: 'paycheck', max: 24 },
+    feb2027Raise: { amount: 110,  type: 'recurring', label: 'Feb 2027 Raise',   unit: 'month', max: 3 },
+    octBonus:     { amount: 2540, type: 'once',      label: 'Oct 2026 Bonus' },
+    taxRefund:    { amount: 5000, type: 'once',      label: 'Tax Refund' },
+    aprBonus:     { amount: 2540, type: 'once',      label: 'Apr 2027 Bonus' },
+  };
+
+  // Firebase init
+  firebase.initializeApp({
+    apiKey: "AIzaSyBJtaq-d7kYCSbk96QxrUjffxskm9bFUqw",
+    authDomain: "mustang-fund.firebaseapp.com",
+    databaseURL: "https://mustang-fund-default-rtdb.firebaseio.com",
+    projectId: "mustang-fund",
+    storageBucket: "mustang-fund.firebasestorage.app",
+    messagingSenderId: "850911926657",
+    appId: "1:850911926657:web:1401c1c0d4c9aaa351b080"
+  });
+  const db = firebase.database();
+  const fundRef = db.ref('mustangFund');
+
+  // In-memory cache kept in sync by Firebase
+  let cachedTotal = 0;
+  let cachedSources = {};
+
+  // Real-time listener — updates all devices instantly
+  fundRef.on('value', snapshot => {
+    const data = snapshot.val() || { total: 0, sources: {} };
+    cachedTotal = data.total || 0;
+    cachedSources = data.sources || {};
+    render(cachedTotal);
+    renderSrcBtns();
+  });
+
+  function saveToFirebase(total, sources) {
+    cachedTotal = total;
+    cachedSources = sources;
+    fundRef.set({ total, sources });
+  }
+
+  function addSource(key) {
+    const def = SOURCES[key];
+    const srcs = JSON.parse(JSON.stringify(cachedSources));
+    if (def.type === 'once' && srcs[key]?.used) return;
+    if (def.type === 'recurring' && def.max && (srcs[key]?.count || 0) >= def.max) return;
+    if (def.type === 'once') { srcs[key] = { used: true }; }
+    else { if (!srcs[key]) srcs[key] = { count: 0 }; srcs[key].count++; }
+    const newTotal = cachedTotal + def.amount;
+    saveToFirebase(newTotal, srcs);
+    flash('+$' + def.amount.toLocaleString('en-CA') + ' (' + def.label + ') — total: $' + Math.round(newTotal).toLocaleString('en-CA'));
+  }
+
+  function undoSource(key) {
+    const def = SOURCES[key];
+    const srcs = JSON.parse(JSON.stringify(cachedSources));
+    if (def.type === 'once') { if (!srcs[key]?.used) return; srcs[key].used = false; }
+    else { if (!srcs[key]?.count || srcs[key].count <= 0) return; srcs[key].count--; }
+    const newTotal = Math.max(cachedTotal - def.amount, 0);
+    saveToFirebase(newTotal, srcs);
+    flash('↩ Removed $' + def.amount.toLocaleString('en-CA') + ' (' + def.label + ') — total: $' + Math.round(newTotal).toLocaleString('en-CA'));
+  }
+
+  function addReimbursement() {
+    const input = document.getElementById('reimbInput');
+    const val = parseFloat(input.value);
+    if (isNaN(val) || val <= 0) return;
+    const srcs = JSON.parse(JSON.stringify(cachedSources));
+    if (!srcs.reimb) srcs.reimb = { total: 0, history: [] };
+    if (!srcs.reimb.history) srcs.reimb.history = [];
+    srcs.reimb.total += val;
+    srcs.reimb.history.push(val);
+    const newTotal = cachedTotal + val;
+    saveToFirebase(newTotal, srcs);
+    input.value = '';
+    flash('+$' + val.toLocaleString('en-CA') + ' (Reimbursement) — total: $' + Math.round(newTotal).toLocaleString('en-CA'));
+  }
+
+  function undoReimbursement() {
+    const srcs = JSON.parse(JSON.stringify(cachedSources));
+    if (!srcs.reimb?.history?.length) { flash('Nothing to undo for reimbursement'); return; }
+    const last = srcs.reimb.history.pop();
+    srcs.reimb.total = Math.max((srcs.reimb.total || 0) - last, 0);
+    const newTotal = Math.max(cachedTotal - last, 0);
+    saveToFirebase(newTotal, srcs);
+    flash('↩ Removed $' + last.toLocaleString('en-CA') + ' (Reimbursement) — total: $' + Math.round(newTotal).toLocaleString('en-CA'));
+  }
+
+  function renderSrcBtns() {
+    const srcs = cachedSources;
+    ['pocketMoney','extraHours','feb2027Raise'].forEach(key => {
+      const def = SOURCES[key];
+      const count = srcs[key]?.count || 0;
+      const el = document.getElementById('count-' + key);
+      const btn = document.getElementById('btn-' + key);
+      if (el) el.textContent = def.max ? count + ' / ' + def.max + ' ' + def.unit + 's' : count + ' ' + def.unit + (count !== 1 ? 's' : '');
+      if (btn) btn.classList.toggle('used', !!(def.max && count >= def.max));
+    });
+    ['octBonus','taxRefund','aprBonus'].forEach(key => {
+      const el = document.getElementById('count-' + key);
+      const btn = document.getElementById('btn-' + key);
+      const used = !!srcs[key]?.used;
+      if (el) el.textContent = used ? '✓ added' : 'not added yet';
+      if (btn) btn.classList.toggle('used', used);
+    });
+    const reimbEl = document.getElementById('count-reimb');
+    if (reimbEl) reimbEl.textContent = '$' + (srcs.reimb?.total || 0).toLocaleString('en-CA') + ' total';
+  }
+
+  function flash(msg) {
+    const el = document.getElementById('addedMsg');
+    el.textContent = msg;
+    setTimeout(() => el.textContent = '', 3500);
+  }
+
+  function showSetModal() {
+    document.getElementById('setModal').style.display = 'block';
+    document.getElementById('setInput').focus();
+  }
+
+  function hideSetModal() {
+    document.getElementById('setModal').style.display = 'none';
+    document.getElementById('setInput').value = '';
+  }
+
+  function setExact() {
+    const val = parseFloat(document.getElementById('setInput').value);
+    if (isNaN(val) || val < 0) return;
+    saveToFirebase(val, cachedSources);
+    hideSetModal();
+    flash('Balance set to $' + Math.round(val).toLocaleString('en-CA'));
+  }
+
+  function render(amount) {
+    const pct = Math.min((amount / GOAL) * 100, 100);
+    const remaining = Math.max(GOAL - amount, 0);
+
+    document.getElementById('displayAmt').innerHTML = '<span>$</span>' + Math.round(amount).toLocaleString('en-CA');
+    document.getElementById('remaining').textContent = fmt(remaining);
+    document.getElementById('fill').style.width = (amount > 0 ? Math.max(pct, 0.5) : 0) + '%';
+    document.getElementById('pctLabel').textContent = pct.toFixed(1) + '% complete';
+
+    document.getElementById('ms1').classList.toggle('done', amount >= 5000);
+    document.getElementById('ms2').classList.toggle('done', amount >= 10000);
+    document.getElementById('ms3').classList.toggle('done', amount >= 15000);
+    document.getElementById('savingsCard').classList.toggle('goal-reached', amount >= 15000);
+  }
+
+  function tick() {
+    const now = new Date();
+    const diff = TARGET - now;
+    if (diff <= 0) {
+      ['days','hours','minutes','seconds'].forEach(id => document.getElementById(id).textContent = '0');
+      return;
+    }
+    document.getElementById('days').textContent    = Math.floor(diff / 86400000);
+    document.getElementById('hours').textContent   = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+    document.getElementById('minutes').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+    document.getElementById('seconds').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+  }
+
+  // Init
+  tick();
+  setInterval(tick, 1000);
+
+  document.getElementById('reimbInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addReimbursement();
+  });
+  document.getElementById('setInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') setExact();
+  });
+</script>
+</body>
+</html>
